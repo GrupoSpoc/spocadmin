@@ -3,8 +3,6 @@ import Container from '@material-ui/core/Container';
 import { useState, useEffect } from 'react';
 import RestService from '../rest/initiative-rest'
 
-
-
 export default function InitiativeList() {
     const [state, setState] = useState({
         initiatives: []
