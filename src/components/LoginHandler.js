@@ -11,6 +11,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState } from 'react';
 import RestService from '../rest/signIn-rest.js'
+import { setJWT } from '../session/SessionUtil.js'
 
 function Copyright() {
   return (
@@ -45,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+export const LoginHandler = ({ history }) =>  {
   const classes = useStyles();
   const[uid, setUid] = useState();
   const[password, setPassword] = useState();
@@ -61,7 +62,9 @@ export default function SignIn() {
 
 
   const handleSubmit = () => {
-     RestService.signIn(uid, password, response => console.log(response))
+     // RestService.signIn(uid, password, response => console.log(response))
+     setJWT({ uid })
+     history.push("/")
   }
 
   return (
