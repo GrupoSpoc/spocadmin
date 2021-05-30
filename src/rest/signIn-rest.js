@@ -4,7 +4,7 @@ import { BASE } from './paths.js'
 const signIn = async (uid, password, callback) => {
     const options = {
         method: 'POST',
-        uri: BASE + '/admin/login',
+        uri: BASE + '/admin/authenticate',
         body: {
             uid,
             password

@@ -11,6 +11,7 @@ export const InitiativeList = ({ history }) =>   {
         initiatives: []
     });
 
+    // ---- START / PIDO INICIATIVAS AL BACKEND ----
     useEffect(() => {
         if (!authenticated()) {
             history.push("/login");
@@ -31,13 +32,19 @@ export const InitiativeList = ({ history }) =>   {
             return { ...prevState, initiatives };
         });
     }
+    // ------ END / PIDO INICIATIVAS AL BACKEND ---- 
 
     return (
         <Container component="main" maxWidth="xs">
+
             { // Acá habría que renderizar por cada i (iniciativa)
                 state.initiatives.map(i => <h1>{i.description}</h1>)
             }
-            <Button onClick={() => history.push('/logout')}>LOGOUT</Button>
+
+
+
+            { /* LOGOUT BUTTON */ }
+            <Button onClick={() => history.push('/logout')}>LOGOUT</Button> 
         </Container>
     );
 }
