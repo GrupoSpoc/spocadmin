@@ -20,5 +20,5 @@ export const getJWT = () => {
 
 };
 
-export const authenticated = () => true;
+export const authenticated = () => getJWT() != null;
 
