@@ -2,8 +2,8 @@ import React from 'react';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import { useState, useEffect } from 'react';
-import RestService from '../rest/initiative-rest'
-import { getJWT, authenticated } from "../session/SessionUtil";
+import restClient from '../rest/rest-client'
+import { authenticated } from "../session/SessionUtil";
 
 
 export const InitiativeList = ({ history }) =>   {
@@ -18,9 +18,9 @@ export const InitiativeList = ({ history }) =>   {
         }
 
         async function fetchData() {
-        RestService.getAllPending(initiativeList => {
-            initiativeList.forEach(addInitiative)
-        })
+            restClient.getAllPending(initiativeList => {
+                initiativeList.forEach(addInitiative)
+            })
         }
         fetchData();
     }, []);

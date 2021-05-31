@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState } from 'react';
-import RestService from '../rest/signIn-rest.js'
+import restClient from '../rest/rest-client.js'
 import { setJWT } from '../session/SessionUtil.js'
 
 function Copyright() {
@@ -62,8 +62,7 @@ export const LoginHandler = ({ history }) =>  {
 
 
   const handleSubmit = () => {
-     RestService.signIn(uid, password, jwt => {
-        console.log(jwt)
+     restClient.signIn(uid, password, jwt => {
         setJWT(jwt)
         history.push("/")
      })
