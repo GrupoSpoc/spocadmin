@@ -1,9 +1,8 @@
 import * as Cookies from "js-cookie";
 
-export const setJWT = session => {
+export const setJWT = jwt => {
   clearJWT();
-  Cookies.set("jwt", session, { expires: 14 });
-  console.log(getJWT())
+  Cookies.set("jwt", jwt, { expires: 14 });
 };
 
 export const clearJWT = () => {
@@ -11,10 +10,10 @@ export const clearJWT = () => {
 };
 
 export const getJWT = () => {
-  const sessionCookie = Cookies.get("jwt");
+  const jwt = Cookies.get("jwt");
 
-  if (sessionCookie) {
-    return JSON.parse(sessionCookie);
+  if (jwt) {
+    return jwt;
   } else {
     return null;
   }

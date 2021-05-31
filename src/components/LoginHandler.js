@@ -62,8 +62,9 @@ export const LoginHandler = ({ history }) =>  {
 
 
   const handleSubmit = () => {
-     RestService.signIn(uid, password, response => {
-        setJWT(response.jwt)
+     RestService.signIn(uid, password, jwt => {
+        console.log(jwt)
+        setJWT(jwt)
         history.push("/")
      })
   }
