@@ -14,6 +14,8 @@ import {EnhancedTableHead} from './HeadCells';
 import { ImagePopup } from './ImagePopup'
 import { DropDownMenu } from './DropDownMenu'
 import { makeStyles } from "@material-ui/core/styles";
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -22,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     paper: {
       width: '100%',
       marginBottom: theme.spacing(2),
+      marginLeft: theme.spacing(2)
     },
     table: {
       minWidth: 750,
@@ -37,6 +40,12 @@ const useStyles = makeStyles((theme) => ({
       top: 20,
       width: 1,
     },
+    spinner: {
+      display: 'flex',
+      '& > * + *': {
+        marginLeft: theme.spacing(2),
+      },
+    },
   }));
 
 export const InitiativeList = ({ history }) =>   {
@@ -48,6 +57,7 @@ export const InitiativeList = ({ history }) =>   {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [selected, setSelected] = useState({}); // para mi esto debería ser {}
     const [displayImagePopup, setDisplayImagePopup] = useState(false)
+    const [loading, setLoading] = useState(true)
 
     // ---- START / PIDO INICIATIVAS AL BACKEND ----
     useEffect(() => {
@@ -55,10 +65,13 @@ export const InitiativeList = ({ history }) =>   {
             history.push("/login");
         }
 
+        setLoading(true)
         async function fetchData() {
             restClient.getAllPending(initiativeList => {
                 initiativeList.forEach(addInitiative)
+                setLoading(false)
             })
+
         }
         fetchData();
     }, []);
@@ -135,10 +148,21 @@ export const InitiativeList = ({ history }) =>   {
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, state.initiatives.length - page * rowsPerPage);
 
-    // Drop down menu con Imagen | Aprobar | Rechazar
-
+    if (loading) return( 
+        <div className={classes.spinner} 
+        style={{
+          position: 'absolute', left: '50%', top: '50%',
+          transform: 'translate(-50%, -50%)'
+        }}>
+          <CircularProgress></CircularProgress>
+        </div>
+      )
     return (
-        <div className={classes.root}>
+        <div className={classes.root}
+          style={{
+            position: 'absolute', left: '50%', top: '50%',
+            transform: 'translate(-50%, -50%)'
+        }}>
           <Paper className={classes.paper}>
             <TableContainer>
               <Table
