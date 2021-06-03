@@ -10,9 +10,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import {EnhancedTableHead} from './HeadCells';
 import { ImagePopup } from './ImagePopup'
+import { DropDownMenu } from './DropDownMenu'
+import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -70,7 +71,7 @@ export const InitiativeList = ({ history }) =>   {
         });
     }
 
-    const handleClick = (initiative) => {
+    const handleInitiativeSelected = (initiative) => {
         setSelected(prev => initiative)
         openImagePopup();
     };
@@ -92,12 +93,19 @@ export const InitiativeList = ({ history }) =>   {
 
     function openImagePopup() {
         setDisplayImagePopup(true)
-      };
+    };
     
-      function closeImagePopup() {
+    function closeImagePopup() {
         setDisplayImagePopup(false)
-      };
+    };
 
+    function handleApprove(initiative) {
+      console.log(initiative._id + " aprobada!")
+    }
+
+    function handleReject(initiative) {
+      console.log(initiative._id + " rechazada!")
+    }
 
     function descendingComparator(a, b, orderBy) {
         if (b[orderBy] < a[orderBy]) {
@@ -125,8 +133,6 @@ export const InitiativeList = ({ history }) =>   {
         return stabilizedThis.map((el) => el[0]);
     }
 
-    const isSelected = (id) => state.initiatives.indexOf(id) !== -1;
-
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, state.initiatives.length - page * rowsPerPage);
 
     // Drop down menu con Imagen | Aprobar | Rechazar
@@ -152,37 +158,37 @@ export const InitiativeList = ({ history }) =>   {
                   {stableSort(state.initiatives, getComparator(order, orderBy))
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((initiative, index) => {
-                      const isItemSelected = isSelected(initiative.id);
-                      const labelId = `enhanced-table-checkbox-${index}`;
-    
                       return (
                         <TableRow
                           hover
-                          onClick={(event) => handleClick(initiative)}
-                          role="checkbox"
-                          aria-checked={isItemSelected}
                           tabIndex={-1}
                           key={initiative.id}
-                          selected={isItemSelected}
                         >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={isItemSelected}
-                              inputProps={{ 'aria-labelledby': labelId }}
-                            />
-                          </TableCell>
-                          <TableCell component="th" id={labelId} scope="row" padding="none">
+                          <TableCell component="th" scope="row" padding="none">
                             {initiative._id}
                           </TableCell>
                           <TableCell align="right">{initiative.date}</TableCell>
                           <TableCell align="right">{initiative.description}</TableCell>
                           <TableCell align="right">{initiative.nickname}</TableCell>
                           <TableCell align="right">{initiative.status_id}</TableCell>
-                          <Button 
-                            label='Aprobar'
-                            onClick={() => console.log("APROBADA")}
-                          /> Aprobar
-                          <Button> Rechazar </Button>
+                          <DropDownMenu
+                            actions = {[
+                              {
+                                label:'Ver',
+                                handleClick: () => { handleInitiativeSelected(initiative) }
+                              },
+                              {
+                                label:'Aprobar',
+                                disabled: false, // todo cuando se rechaza / aprueba
+                                handleClick: () => handleApprove(initiative)
+                              },
+                              {
+                                label:'Rechazar',
+                                disabled: false,
+                                handleClick: () => handleReject(initiative),
+                              }
+                            ]}
+                          />
                         </TableRow>
                       );
                     })}

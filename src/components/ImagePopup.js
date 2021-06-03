@@ -5,7 +5,6 @@ import {
 } from "@material-ui/core";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import Slide from "@material-ui/core/Slide";
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -34,8 +33,6 @@ export function ImagePopup(props) {
   function close() {
     props.handleClose();
   }
-
-  console.log(initiative)
 
   return (
     <Fragment>
