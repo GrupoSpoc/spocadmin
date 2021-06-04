@@ -30,10 +30,19 @@ const signIn = async (uid, password, callback) => {
     .catch(err => console.log(err));
 }
 
-const getAllPending = callback => {
+const getAllPending = (dateTop, callback) => {
     const opt = authOptions()
-    
-    axios.get(BASE + '/initiative/pending', opt)
+
+    const params = {
+        order: 1,
+        statusId: 1,
+        limit: 4,
+        dateTop
+    }
+
+    opt.params = params;
+
+    axios.get(BASE + '/initiative/all', opt)
 
     .then(res => callback(res.data))
     .catch(err => console.log(err));

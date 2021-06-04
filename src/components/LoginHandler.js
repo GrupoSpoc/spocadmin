@@ -12,6 +12,7 @@ import Container from '@material-ui/core/Container';
 import { useState } from 'react';
 import restClient from '../rest/rest-client.js'
 import { setJWT } from '../session/SessionUtil.js'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 function Copyright() {
   return (
@@ -50,7 +51,7 @@ export const LoginHandler = ({ history }) =>  {
   const classes = useStyles();
   const[uid, setUid] = useState();
   const[password, setPassword] = useState();
-
+  const [loading, setLoading] = useState(false);
 
   const handleUidChanged = e => {
     setUid(prev => e.target.value)
@@ -62,12 +63,23 @@ export const LoginHandler = ({ history }) =>  {
 
 
   const handleSubmit = () => {
+     setLoading(true);
      restClient.signIn(uid, password, jwt => {
         setJWT(jwt)
+        setLoading(false);
         history.push("/")
      })
   }
 
+  if (loading) return( 
+    <div className={classes.spinner} 
+    style={{
+      position: 'absolute', left: '50%', top: '50%',
+      transform: 'translate(-50%, -50%)'
+    }}>
+      <CircularProgress></CircularProgress>
+    </div>
+  )
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />

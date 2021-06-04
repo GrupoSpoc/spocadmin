@@ -7,7 +7,6 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
-import TablePagination from '@material-ui/core/TablePagination';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import {EnhancedTableHead} from './HeadCells';
@@ -15,6 +14,7 @@ import { ImagePopup } from './ImagePopup'
 import { DropDownMenu } from './DropDownMenu'
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Toolbar from '@material-ui/core/Toolbar'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -52,8 +52,6 @@ export const InitiativeList = ({ history }) =>   {
     const [state, setState] = useState({initiatives: []});
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
     const [selected, setSelected] = useState({}); // para mi esto debería ser {}
     const [displayImagePopup, setDisplayImagePopup] = useState(false)
     const [loading, setLoading] = useState(true)
@@ -64,13 +62,11 @@ export const InitiativeList = ({ history }) =>   {
             history.push("/login");
         }
 
-        setLoading(true)
         async function fetchData() {
-            restClient.getAllPending(initiativeList => {
+            restClient.getAllPending(null, initiativeList => {
                 initiativeList.forEach(addInitiative)
                 setLoading(false)
             })
-
         }
         fetchData();
     }, []);
@@ -83,6 +79,20 @@ export const InitiativeList = ({ history }) =>   {
         });
     }
 
+    function fetchMoreInitiatives() {
+      let dateTop;
+
+      if (state.initiatives.length > 0) {
+          const lastInitiative = state.initiatives[state.initiatives.length - 1]
+          dateTop = lastInitiative.date
+      }
+
+      restClient.getAllPending(dateTop, initiativeList => {
+        initiativeList.forEach(addInitiative)
+        setLoading(false)
+      })
+    }
+
     const handleInitiativeSelected = (initiative) => {
         setSelected(prev => initiative)
         openImagePopup();
@@ -92,15 +102,6 @@ export const InitiativeList = ({ history }) =>   {
         const isAsc = orderBy === property && order === 'asc';
         setOrder(isAsc ? 'desc' : 'asc');
         setOrderBy(property);
-    };
-
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-    };
-    
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
     };
 
     function openImagePopup() {
@@ -145,7 +146,29 @@ export const InitiativeList = ({ history }) =>   {
         return stabilizedThis.map((el) => el[0]);
     }
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, state.initiatives.length - page * rowsPerPage);
+    function formatDate(d) {
+      const date = new Date(d)
+      let formattedDate = ''
+  
+      const separated = date.toLocaleDateString().split('/')
+      const month = separated[0]
+      const day = separated[1]
+      const year = separated[2]
+  
+      const separator = '-'
+  
+      formattedDate += day >= 10 ? day : `0${day}` 
+      formattedDate += separator
+      formattedDate += month >= 10 ? month : `0${month}` 
+      formattedDate += separator
+      formattedDate += year
+
+      formattedDate += ' ' + date.toLocaleTimeString()
+  
+      return formattedDate
+  }
+
+
 
     if (loading) return( 
         <div className={classes.spinner} 
@@ -159,8 +182,8 @@ export const InitiativeList = ({ history }) =>   {
     return (
         <div className={classes.root}
           style={{
-            position: 'absolute', left: '50%', top: '50%',
-            transform: 'translate(-50%, -50%)'
+            position: 'absolute', left: '50%', top: '10%',
+            transform: 'translate(-50%, -10%)'
         }}>
           <Paper className={classes.paper}>
             <TableContainer>
@@ -171,15 +194,12 @@ export const InitiativeList = ({ history }) =>   {
               >
                 <EnhancedTableHead
                   classes={classes}
-                  numSelected={selected.length}
                   order={order}
                   orderBy={orderBy}
                   onRequestSort={handleRequestSort}
-                  rowCount={state.initiatives.length}
                 />
                 <TableBody>
                   {stableSort(state.initiatives, getComparator(order, orderBy))
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((initiative, index) => {
                       return (
                         <TableRow
@@ -190,7 +210,7 @@ export const InitiativeList = ({ history }) =>   {
                           <TableCell component="th" scope="row" padding="none">
                             {initiative._id}
                           </TableCell>
-                          <TableCell align="right">{initiative.date}</TableCell>
+                          <TableCell align="right">{formatDate(initiative.date)}</TableCell>
                           <TableCell align="right">{initiative.description}</TableCell>
                           <TableCell align="right">{initiative.nickname}</TableCell>
                           <TableCell align="right">{initiative.status_id}</TableCell>
@@ -215,24 +235,27 @@ export const InitiativeList = ({ history }) =>   {
                         </TableRow>
                       );
                     })}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 33 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
                 </TableBody>
               </Table>
             </TableContainer>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
-              component="div"
-              count={state.initiatives.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onChangePage={handleChangePage}
-              onChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          <Button onClick={() => history.push('/logout')}>LOGOUT</Button> 
+            <Toolbar className= {classes.bottomToolbar}>
+                  <Button 
+                    className = {classes.button}
+                    variant ="contained" 
+                    color ="primary" 
+                    size = "medium" 
+                    onClick={fetchMoreInitiatives}>
+                    Cargar más Iniciativas
+                  </Button>
+                  <Button 
+                    className = {classes.button}
+                    variant ="contained" 
+                    color ="primary" 
+                    size = "medium" 
+                    onClick={() => history.push('/logout')}>
+                    LOGOUT
+                  </Button> 
+            </Toolbar>
           </Paper>
           { displayImagePopup && <ImagePopup
             initiative={selected}

@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment } from "react";
 import {
   Button,
   Dialog
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export function ImagePopup(props) {
-  const [initiative, setInitiative] = useState(props.initiative);
+  const initiative = props.initiative;
   const classes = useStyles();
 
   function close() {
@@ -46,7 +46,7 @@ export function ImagePopup(props) {
       >
         <DialogContent>
           <div>
-            <img src={`data:image/jpeg;base64,${initiative.image}`} alt="Image" />
+            <img src={`data:image/jpeg;base64,${initiative.image}`} alt="initiative" />
           </div>
         </DialogContent>
         <DialogActions style={{justifyContent: 'center'}}>
