@@ -50,7 +50,28 @@ const getAllPending = (dateTop, callback) => {
     .catch(err => console.log(err));
 }
 
+const approve = (initiativeId, callback, errCallback) => {
+    const opt = authOptions()
+
+    axios.post(BASE + '/initiative/approve/' + initiativeId, null, opt)
+
+    .then(res => callback(res.data))
+    .catch(err => errCallback(err));
+}
+
+const reject = (initiativeId, callback, errCallback) => {
+    const opt = authOptions()
+
+    axios.post(BASE + '/initiative/reject/' + initiativeId, null, opt)
+
+    .then(res => callback(res.data))
+    .catch(err => errCallback(err));
+}
+
+
 export default {
     signIn,
-    getAllPending
+    getAllPending,
+    approve,
+    reject
 }

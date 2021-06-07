@@ -87,6 +87,7 @@ export const InitiativeList = ({ history }) =>   {
           dateTop = lastInitiative.date
       }
 
+      setLoading(true)
       restClient.getAllPending(dateTop, initiativeList => {
         initiativeList.forEach(addInitiative)
         setLoading(false)
@@ -113,11 +114,27 @@ export const InitiativeList = ({ history }) =>   {
     };
 
     function handleApprove(initiative) {
-      console.log(initiative._id + " aprobada!")
+      setLoading(true)
+      restClient.approve(initiative._id, res => {
+        alert("Iniciativa aprobada! Recargue la página")
+        setLoading(false)
+      },
+      err => {
+        alert("Error aprobando iniciativa: " + err)
+        setLoading(false);
+      })
     }
 
     function handleReject(initiative) {
-      console.log(initiative._id + " rechazada!")
+      setLoading(true)
+      restClient.reject(initiative._id, res => {
+        alert("Iniciativa rechazada! Recargue la página")
+        setLoading(false)
+      },
+      err => {
+        alert("Error rechazando iniciativa: " + err)
+        setLoading(false);
+      })
     }
 
     function descendingComparator(a, b, orderBy) {
