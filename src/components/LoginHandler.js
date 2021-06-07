@@ -14,6 +14,8 @@ import restClient from '../rest/rest-client.js'
 import { setJWT } from '../session/SessionUtil.js'
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -68,6 +70,10 @@ export const LoginHandler = ({ history }) =>  {
         setJWT(jwt)
         setLoading(false);
         history.push("/")
+     },
+     err => {
+       setLoading(false);
+       alert("uid o contraseña incorrectos")
      })
   }
 

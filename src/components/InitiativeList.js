@@ -240,16 +240,22 @@ export const InitiativeList = ({ history }) =>   {
             </TableContainer>
             <Toolbar className= {classes.bottomToolbar}>
                   <Button 
+                    style = {{
+                      margin: 10
+                    }}
                     className = {classes.button}
                     variant ="contained" 
-                    color ="primary" 
+                    color ="secondary" 
                     size = "medium" 
                     onClick={fetchMoreInitiatives}>
                     Cargar más Iniciativas
                   </Button>
                   <Button 
+                    style = {{
+                      margin: 10
+                    }}
                     className = {classes.button}
-                    variant ="contained" 
+                    variant ="outlined" 
                     color ="primary" 
                     size = "medium" 
                     onClick={() => history.push('/logout')}>

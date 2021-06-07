@@ -14,7 +14,7 @@ const authOptions = () => {
     return opt
 }
 
-const signIn = async (uid, password, callback) => {
+const signIn = async (uid, password, callback, errCallback) => {
     const opt = options()
     
     opt.headers['Content-Type'] = 'application/json'
@@ -27,7 +27,10 @@ const signIn = async (uid, password, callback) => {
     axios.post(BASE + '/authenticate/admin', data, opt)
 
     .then(res => callback(res.data.jwt))
-    .catch(err => console.log(err));
+    .catch(err => {
+        console.log(err)
+        errCallback(err)
+    });
 }
 
 const getAllPending = (dateTop, callback) => {
