@@ -28,7 +28,6 @@ const signIn = async (uid, password, callback, errCallback) => {
 
     .then(res => callback(res.data.jwt))
     .catch(err => {
-        console.log(err)
         errCallback(err)
     });
 }
