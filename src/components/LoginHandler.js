@@ -9,10 +9,11 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import restClient from '../rest/rest-client.js'
 import { setJWT } from '../session/SessionUtil.js'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { SessionContext } from './context';
 
 
 
@@ -51,9 +52,11 @@ const useStyles = makeStyles((theme) => ({
 
 export const LoginHandler = ({ history }) =>  {
   const classes = useStyles();
+  const { alert } = useContext(SessionContext);
   const[uid, setUid] = useState();
   const[password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
+
 
   const handleUidChanged = e => {
     setUid(prev => e.target.value)
@@ -73,7 +76,7 @@ export const LoginHandler = ({ history }) =>  {
      },
      err => {
        setLoading(false);
-       alert("uid o contraseña incorrectos")
+       alert(2, 'Usuario o contraseña incorrectos')
      })
   }
 
@@ -102,9 +105,9 @@ export const LoginHandler = ({ history }) =>  {
             required
             fullWidth
             id="uid"
-            label="Uid"
-            name="uid"
-            autoComplete="uid"
+            label="User"
+            name="User"
+            autoComplete="User"
             autoFocus
             onChange={handleUidChanged}
           />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import restClient from '../rest/rest-client'
 import { authenticated } from "../session/SessionUtil";
 import Table from '@material-ui/core/Table';
@@ -22,6 +22,7 @@ import ApproveIcon from '@material-ui/icons/Check'
 import RejectIcon from '@material-ui/icons/Clear'
 import CameraIcon from '@material-ui/icons/CameraAlt'
 import { useConfirm } from 'material-ui-confirm';
+import { SessionContext } from './context';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -35,8 +36,6 @@ const useStyles = makeStyles((theme) => ({
       width: '90%',
       margin: 'auto',
       marginTop: 100,
-      // marginBottom: theme.spacing(2),
-      // marginLeft: theme.spacing(2)
     },
     table: {
       minWidth: 750,
@@ -86,6 +85,7 @@ statusMap.set(3, 'Rechazada')
 export const InitiativeList = ({ history }) =>   {
     const confirm = useConfirm()
     const classes = useStyles();
+    const { alert } = useContext(SessionContext);
     const [state, setState] = useState({initiatives: []});
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState('calories');
@@ -160,10 +160,11 @@ export const InitiativeList = ({ history }) =>   {
         setLoading(true)
         restClient.approve(initiative._id, res => {
           changeStatusAndDisable(index, 2)
+          alert(0, "Iniciativa aprobada!")
           setLoading(false)
         },
         err => {
-          alert("Error aprobando iniciativa: " + err)
+          alert(2, "Error aprobando iniciativa: " + err)
           setLoading(false);
         })
       })
@@ -174,10 +175,11 @@ export const InitiativeList = ({ history }) =>   {
         setLoading(true)
         restClient.reject(initiative._id, res => {
           changeStatusAndDisable(index, 3)
+          alert(3, "Iniciativa rechazada!")
           setLoading(false)
         },
         err => {
-          alert("Error rechazando iniciativa: " + err)
+          alert(2, "Error rechazando iniciativa: " + err)
           setLoading(false);
         })
       })
