@@ -1,5 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import { useState, useEffect } from 'react';
 import restClient from '../rest/rest-client'
 import { authenticated } from "../session/SessionUtil";
@@ -11,22 +10,43 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import {EnhancedTableHead} from './HeadCells';
 import { ImagePopup } from './ImagePopup'
-import { DropDownMenu } from './DropDownMenu'
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Toolbar from '@material-ui/core/Toolbar'
+import { IconButton } from '@material-ui/core';
+//import Toolbar from '@material-ui/core/Toolbar'
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import Tooltip from '@material-ui/core/Tooltip'
+import { NavBar } from './NavBar';
+import ApproveIcon from '@material-ui/icons/Check'
+import RejectIcon from '@material-ui/icons/Clear'
+import CameraIcon from '@material-ui/icons/CameraAlt'
+import { useConfirm } from 'material-ui-confirm';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
       width: '100%',
+      alignContent: 'center',
+      justifyContent: 'center',
+     
     },
     paper: {
-      width: '100%',
-      marginBottom: theme.spacing(2),
-      marginLeft: theme.spacing(2)
+      width: '90%',
+      margin: 'auto',
+      marginTop: 100,
+      // marginBottom: theme.spacing(2),
+      // marginLeft: theme.spacing(2)
     },
     table: {
       minWidth: 750,
+      padding: 20
+    },
+    tableHead:{
+      justifyContent:'center'
+    },
+    EngineIcon:{
+      margin: '5%'
     },
     visuallyHidden: {
       border: 0,
@@ -45,9 +65,26 @@ const useStyles = makeStyles((theme) => ({
         marginLeft: theme.spacing(2),
       },
     },
+    bottomToolbar:{
+      justifyContent: 'space-between'
+    },
+    fab:{
+     width: '100%',
+     textAlign: 'center',
+     marginTop:'1%'
+    }
   }));
 
+const colorDisabled = "#424242"
+
+const statusMap = new Map()
+statusMap.set(1, 'Pendiente')
+statusMap.set(2, 'Aprobada')
+statusMap.set(3, 'Rechazada')
+
+
 export const InitiativeList = ({ history }) =>   {
+    const confirm = useConfirm()
     const classes = useStyles();
     const [state, setState] = useState({initiatives: []});
     const [order, setOrder] = useState('asc');
@@ -71,9 +108,14 @@ export const InitiativeList = ({ history }) =>   {
         fetchData();
     }, []);
 
+    function buildConfirmBody (message) {
+      return {title: 'Confirmación', description: message, cancellationText: 'Cancelar'}
+    }
+
     function addInitiative(i) {
         setState((prevState) => {
             const initiatives = [...prevState.initiatives];
+            i.enabled = true
             initiatives.push(i);
             return { ...prevState, initiatives };
         });
@@ -113,28 +155,46 @@ export const InitiativeList = ({ history }) =>   {
         setDisplayImagePopup(false)
     };
 
-    function handleApprove(initiative) {
-      setLoading(true)
-      restClient.approve(initiative._id, res => {
-        alert("Iniciativa aprobada! Recargue la página")
-        setLoading(false)
-      },
-      err => {
-        alert("Error aprobando iniciativa: " + err)
-        setLoading(false);
+    function handleApprove(initiative, index) {
+      confirm(buildConfirmBody("¿Seguro desea aprobar esta Iniciativa?")).then(() => {
+        setLoading(true)
+        restClient.approve(initiative._id, res => {
+          changeStatusAndDisable(index, 2)
+          setLoading(false)
+        },
+        err => {
+          alert("Error aprobando iniciativa: " + err)
+          setLoading(false);
+        })
       })
     }
 
-    function handleReject(initiative) {
-      setLoading(true)
-      restClient.reject(initiative._id, res => {
-        alert("Iniciativa rechazada! Recargue la página")
-        setLoading(false)
-      },
-      err => {
-        alert("Error rechazando iniciativa: " + err)
-        setLoading(false);
+    function handleReject(initiative, index) {
+      confirm(buildConfirmBody("¿Seguro desea rechazar esta Iniciativa?")).then(() => {
+        setLoading(true)
+        restClient.reject(initiative._id, res => {
+          changeStatusAndDisable(index, 3)
+          setLoading(false)
+        },
+        err => {
+          alert("Error rechazando iniciativa: " + err)
+          setLoading(false);
+        })
       })
+    }
+
+    function changeStatusAndDisable(index, status_id) {
+      // 1. Make a shallow copy of the items
+      let initiatives = [...state.initiatives];
+      // 2. Make a shallow copy of the item you want to mutate
+      let initiative = {...initiatives[index]};
+      // 3. Replace the property you're intested in
+      initiative.enabled = false;
+      initiative.status_id = status_id
+      // 4. Put it back into our array. N.B. we *are* mutating the array here, but that's why we made a copy first
+      initiatives[index] = initiative;
+      // 5. Set the state to our new copy
+      setState({initiatives});
     }
 
     function descendingComparator(a, b, orderBy) {
@@ -197,20 +257,18 @@ export const InitiativeList = ({ history }) =>   {
         </div>
       )
     return (
-        <div className={classes.root}
-          style={{
-            position: 'absolute', left: '50%', top: '10%',
-            transform: 'translate(-50%, -10%)'
-        }}>
+        <div className={classes.root}>
+          <NavBar history={history}/>
           <Paper className={classes.paper}>
             <TableContainer>
               <Table
                 className={classes.table}
                 aria-labelledby="Initiatives"
                 aria-label="enhanced table"
+                size="small"
               >
                 <EnhancedTableHead
-                  classes={classes}
+                  classes={classes.tableHead}
                   order={order}
                   orderBy={orderBy}
                   onRequestSort={handleRequestSort}
@@ -218,68 +276,70 @@ export const InitiativeList = ({ history }) =>   {
                 <TableBody>
                   {stableSort(state.initiatives, getComparator(order, orderBy))
                     .map((initiative, index) => {
+                      const enabled = initiative.enabled
                       return (
                         <TableRow
                           hover
                           tabIndex={-1}
                           key={initiative.id}
+                          align
+                          selected = {!enabled}
                         >
-                          <TableCell component="th" scope="row" padding="none">
+                          <TableCell component="th" scope="row" padding="5%">
                             {initiative._id}
                           </TableCell>
-                          <TableCell align="right">{formatDate(initiative.date)}</TableCell>
-                          <TableCell align="right">{initiative.description}</TableCell>
-                          <TableCell align="right">{initiative.nickname}</TableCell>
-                          <TableCell align="right">{initiative.status_id}</TableCell>
-                          <DropDownMenu
-                            actions = {[
-                              {
-                                label:'Ver',
-                                handleClick: () => { handleInitiativeSelected(initiative) }
-                              },
-                              {
-                                label:'Aprobar',
-                                disabled: false, // todo cuando se rechaza / aprueba
-                                handleClick: () => handleApprove(initiative)
-                              },
-                              {
-                                label:'Rechazar',
-                                disabled: false,
-                                handleClick: () => handleReject(initiative),
-                              }
-                            ]}
-                          />
+                          <TableCell align="left">{formatDate(initiative.date)}</TableCell>
+                          <TableCell align="left">{initiative.description}</TableCell>
+                          <TableCell align="left">{initiative.nickname}</TableCell>
+                          <TableCell align="center">{statusMap.get(initiative.status_id)}</TableCell>
+                          <TableCell>
+                            <Tooltip title = "Ver imagen" placement="right-start">
+                              <IconButton 
+                                  size="large"
+                                  onClick={() => handleInitiativeSelected(initiative)}> 
+                                  <CameraIcon color="primary"/>
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title = "Aprobar" placement="right-start">
+                              <IconButton 
+                                  size="large"
+                                  onClick={() => handleApprove(initiative, index)}
+                                  disabled={!enabled}> 
+                                  <ApproveIcon color={enabled ? "#76ff03" : colorDisabled}/>
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
+                          <TableCell>
+                            <Tooltip title = "Rechazar" placement="right-start">
+                              <IconButton 
+                                  size="large"
+                                  onClick={() => handleReject(initiative, index)}
+                                  disabled={!enabled}> 
+                                  <RejectIcon color={enabled ? "secondary" : colorDisabled}/>
+                              </IconButton>
+                            </Tooltip>
+                          </TableCell>
                         </TableRow>
                       );
                     })}
                 </TableBody>
               </Table>
             </TableContainer>
-            <Toolbar className= {classes.bottomToolbar}>
-                  <Button 
-                    style = {{
-                      margin: 10
-                    }}
-                    className = {classes.button}
-                    variant ="contained" 
-                    color ="secondary" 
-                    size = "medium" 
-                    onClick={fetchMoreInitiatives}>
-                    Cargar más Iniciativas
-                  </Button>
-                  <Button 
-                    style = {{
-                      margin: 10
-                    }}
-                    className = {classes.button}
-                    variant ="outlined" 
-                    color ="primary" 
-                    size = "medium" 
-                    onClick={() => history.push('/logout')}>
-                    LOGOUT
-                  </Button> 
-            </Toolbar>
-          </Paper>
+            </Paper>
+            <div className={classes.fab}>
+              <Tooltip title = "Cargar más Iniciativas" placement="right-start">
+                <Fab
+                  color ="secondary" 
+                  size = "large" 
+                  onClick={fetchMoreInitiatives}
+                >
+                  <AddIcon/>
+                </Fab>
+              </Tooltip>
+            </div>
+          
           { displayImagePopup && <ImagePopup
             initiative={selected}
             handleClose={closeImagePopup}

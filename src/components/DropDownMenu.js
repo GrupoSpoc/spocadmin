@@ -44,13 +44,13 @@ export function DropDownMenu(props) {
   };
 
   return (
-    <div>
+    <div style={{marginRight: 10, marginTop: 8}}>
          <IconButton 
-         color="primary" 
+         color="secondary" 
          onClick={handleClick}  
          aria-haspopup="true"
-         variant="contained"
-         component="span">
+         component="span"
+         >
           {icon}
         </IconButton>
       <StyledMenu

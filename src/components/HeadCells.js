@@ -6,10 +6,10 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 
 const headCells = [
     { id: 'id', numeric: false, disablePadding: true, label: 'id' },
-    { id: 'date', numeric: false, disablePadding: false, label: 'date' },
-    { id: 'nickname', numeric: false, disablePadding: false, label: 'description'},
-    { id: 'carbs', numeric: false, disablePadding: false, label: 'nickname' },
-    { id: 'protein', numeric: true, disablePadding: false, label: 'status_id' },
+    { id: 'date', numeric: false, disablePadding: false, label: 'Fecha' },
+    { id: 'description', numeric: false, disablePadding: false, label: 'Descripción'},
+    { id: 'nickname', numeric: false, disablePadding: false, label: 'Usuario' },
+    { id: 'status', numeric: false, disablePadding: false, label: 'Estado' },
 ];
 
 export function EnhancedTableHead(props) {
@@ -25,8 +25,8 @@ export function EnhancedTableHead(props) {
           {headCells.map((headCell) => (
             <TableCell
               key={headCell.id}
-              align={headCell.numeric ? 'right' : 'left'}
-              padding={headCell.disablePadding ? 'none' : 'default'}
+              align="left"
+              padding="5%"
               sortDirection={orderBy === headCell.id ? order : false}
             >
               <TableSortLabel
@@ -43,6 +43,9 @@ export function EnhancedTableHead(props) {
               </TableSortLabel>
             </TableCell>
           ))}
+            <TableCell />
+            <TableCell />
+            <TableCell />
         </TableRow>
       </TableHead>
     );
