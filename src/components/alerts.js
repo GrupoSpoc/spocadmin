@@ -1,5 +1,5 @@
 import React from 'react'
-import {AppBar, Toolbar} from '@material-ui/core'
+import {AppBar} from '@material-ui/core'
 import MuiAlert from "@material-ui/lab/Alert"
 
 const severities = ['success', 'warning', 'error', 'info']
@@ -7,13 +7,14 @@ const severities = ['success', 'warning', 'error', 'info']
 export function Alert(severity, msg, close = () => {} ) {
     setTimeout(() => {
         close()
-    }, 9000)
+    }, 4000)
     return (
-        <AppBar position="fixed">
-          <Toolbar>
-    <MuiAlert  onClose = {close} elevation={6} variant="filled" severity={severities[severity]}>{msg}</MuiAlert>
-    </Toolbar>
-    </AppBar>)
+
+    <AppBar position="fixed">
+        <MuiAlert  position="fixed" onClose = {close} elevation={1} variant="filled" severity={severities[severity]}>{msg}</MuiAlert>
+    </AppBar>
+
+)
 }
 
 export default {}

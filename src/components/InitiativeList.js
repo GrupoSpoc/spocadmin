@@ -13,7 +13,6 @@ import { ImagePopup } from './ImagePopup'
 import { makeStyles } from "@material-ui/core/styles";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { IconButton } from '@material-ui/core';
-//import Toolbar from '@material-ui/core/Toolbar'
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip'
@@ -42,7 +41,9 @@ const useStyles = makeStyles((theme) => ({
       padding: 20
     },
     tableHead:{
-      justifyContent:'center'
+      justifyContent:'center',
+      backgroundColor: '#2196f3',
+      color: theme.palette.common.white
     },
     EngineIcon:{
       margin: '5%'
@@ -160,7 +161,7 @@ export const InitiativeList = ({ history }) =>   {
         setLoading(true)
         restClient.approve(initiative._id, res => {
           changeStatusAndDisable(index, 2)
-          alert(0, "Iniciativa aprobada!")
+          alert(3, `Iniciativa ${initiative._id} aprobada`)
           setLoading(false)
         },
         err => {
@@ -175,7 +176,7 @@ export const InitiativeList = ({ history }) =>   {
         setLoading(true)
         restClient.reject(initiative._id, res => {
           changeStatusAndDisable(index, 3)
-          alert(3, "Iniciativa rechazada!")
+          alert(3, `Iniciativa ${initiative._id} rechazada`)
           setLoading(false)
         },
         err => {
@@ -249,15 +250,6 @@ export const InitiativeList = ({ history }) =>   {
 
 
 
-    if (loading) return( 
-        <div className={classes.spinner} 
-        style={{
-          position: 'absolute', left: '50%', top: '50%',
-          transform: 'translate(-50%, -50%)'
-        }}>
-          <CircularProgress></CircularProgress>
-        </div>
-      )
     return (
         <div className={classes.root}>
           <NavBar history={history}/>
@@ -270,7 +262,6 @@ export const InitiativeList = ({ history }) =>   {
                 size="small"
               >
                 <EnhancedTableHead
-                  classes={classes.tableHead}
                   order={order}
                   orderBy={orderBy}
                   onRequestSort={handleRequestSort}
@@ -279,13 +270,22 @@ export const InitiativeList = ({ history }) =>   {
                   {stableSort(state.initiatives, getComparator(order, orderBy))
                     .map((initiative, index) => {
                       const enabled = initiative.enabled
+
+                      let rowStyle;
+
+                      if (enabled) {
+                        rowStyle = {backgroundColor: 'white'};
+                      } else if (initiative.status_id == 2) {
+                        rowStyle = {backgroundColor: '#d0e7b7', opacity:'70%'};
+                      } else rowStyle = {backgroundColor: '#f2aeae', opacity:'70%'}
+
                       return (
                         <TableRow
                           hover
                           tabIndex={-1}
                           key={initiative.id}
                           align
-                          selected = {!enabled}
+                          style={rowStyle}
                         >
                           <TableCell component="th" scope="row" padding="5%">
                             {initiative._id}
@@ -331,7 +331,8 @@ export const InitiativeList = ({ history }) =>   {
               </Table>
             </TableContainer>
             </Paper>
-            <div className={classes.fab}>
+            {loading &&  <div className={classes.fab}><CircularProgress></CircularProgress> </div>}
+            {!loading && <div className={classes.fab}>
               <Tooltip title = "Cargar más Iniciativas" placement="right-start">
                 <Fab
                   color ="secondary" 
@@ -341,9 +342,9 @@ export const InitiativeList = ({ history }) =>   {
                   <AddIcon/>
                 </Fab>
               </Tooltip>
-            </div>
+            </div>}
           
-          { displayImagePopup && <ImagePopup
+          {displayImagePopup && <ImagePopup
             initiative={selected}
             handleClose={closeImagePopup}
         />}

@@ -16,7 +16,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { SessionContext } from './context';
 
 
-
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -80,15 +79,6 @@ export const LoginHandler = ({ history }) =>  {
      })
   }
 
-  if (loading) return( 
-    <div className={classes.spinner} 
-    style={{
-      position: 'absolute', left: '50%', top: '50%',
-      transform: 'translate(-50%, -50%)'
-    }}>
-      <CircularProgress></CircularProgress>
-    </div>
-  )
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -123,7 +113,8 @@ export const LoginHandler = ({ history }) =>  {
             autoComplete="current-password"
             onChange={handlePasswordChanged}
           />
-          <Button
+          {loading && <div className={classes.fab}><CircularProgress></CircularProgress> </div>}
+          {!loading && <Button
             type="submit"
             fullWidth
             variant="contained"
@@ -133,7 +124,7 @@ export const LoginHandler = ({ history }) =>  {
             onClick={handleSubmit}
           >
             Sign In
-          </Button>
+          </Button>}
       </div>
       <Box mt={8}>
         <Copyright />

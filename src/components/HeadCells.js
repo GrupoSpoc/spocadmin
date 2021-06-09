@@ -3,6 +3,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 
 const headCells = [
     { id: 'id', numeric: false, disablePadding: true, label: 'id' },
@@ -13,17 +14,17 @@ const headCells = [
 ];
 
 export function EnhancedTableHead(props) {
-    const { classes, order, orderBy, onRequestSort } = props;
+    const { order, orderBy, onRequestSort } = props;
     
     const createSortHandler = (property) => (event) => {
       onRequestSort(event, property);
     };
   
     return (
-      <TableHead>
+      <TableHead style={{backgroundColor:'#2c387e'}} >
         <TableRow>
           {headCells.map((headCell) => (
-            <TableCell
+            <TableCell style={{color: 'white'}}
               key={headCell.id}
               align="left"
               padding="5%"
