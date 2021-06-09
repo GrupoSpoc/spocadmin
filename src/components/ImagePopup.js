@@ -37,7 +37,6 @@ export function ImagePopup(props) {
   return (
     <Fragment>
       <Dialog
-        fullWidth={true}
         maxWidth={"md"}
         open={true}
         TransitionComponent={Transition}

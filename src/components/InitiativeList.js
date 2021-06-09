@@ -308,8 +308,9 @@ export const InitiativeList = ({ history }) =>   {
                               <IconButton 
                                   size="large"
                                   onClick={() => handleApprove(initiative, index)}
-                                  disabled={!enabled}> 
-                                  <ApproveIcon color={enabled ? "#76ff03" : colorDisabled}/>
+                                  disabled={!enabled}
+                                  > 
+                                  <ApproveIcon color={enabled ? "primary" : colorDisabled}/>
                               </IconButton>
                             </Tooltip>
                           </TableCell>
