@@ -26,7 +26,7 @@ const signIn = async (uid, password, callback, errCallback) => {
     
     axios.post(BASE + '/authenticate/admin', data, opt)
 
-    .then(res => callback(res.data.jwt))
+    .then(res => callback(res.data))
     .catch(err => {
         errCallback(err)
     });

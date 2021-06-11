@@ -2,11 +2,14 @@ import Grid from '@material-ui/core/Grid';
 import { IconButton } from '@material-ui/core';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
 import fiwareLogo from '../assets/fiware-logo.png'
+import fiwareTitle from '../assets/fiware-title.png'
+
+
 import Tooltip from '@material-ui/core/Tooltip'
 import { useConfirm } from 'material-ui-confirm';
 
 
-export const NavBar = ({ history }) => {
+export const NavBar = ({ history, user }) => {
     const confirm = useConfirm();
     return (
         <div className="navBar" style={{width: "100%", padding: 5, margin: "auto", boxShadow: "0 2px 4px 0 rgba(0,0,0,.2)", textAlign:"center"}}>
@@ -18,14 +21,17 @@ export const NavBar = ({ history }) => {
             style={{width: "90%", margin: 'auto'}}
             
         >
-            <Grid item xs={2} justify="center">
-                <img src={fiwareLogo} alt="" style={{width: 100 }}/>
+            <Grid item xs={2} justify="left">
+                <img src={fiwareLogo} alt="" style={{ width: '60%' }}/>
             </Grid>
-            <Grid item xs={2} justify="center">
+            <Grid item xs={3} justify="center">
+                <img src={fiwareTitle} alt="" style={{ width: '90%' }}/>
+            </Grid>
+            <Grid item xs={2} justify="right">
                 <Tooltip title = "Logout" placement="right-start">
                     <IconButton 
                         tooltip="Logout"
-                        size="large"
+                        size="medium"
                         onClick={() => {
                             confirm({title: "Cerrar sesión", description: "¿Seguro desea cerrar sesión?", cancellationText:"Cancelar"})
                             .then(() => {
@@ -34,7 +40,8 @@ export const NavBar = ({ history }) => {
                         <PowerSettingsNewIcon color="secondary"/>
                     </IconButton>
                 </Tooltip>
-            </Grid>
+                <p>{user}</p>
+            </Grid>                
         </Grid>
         </div> 
         

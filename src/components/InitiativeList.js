@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useContext } from 'react';
 import restClient from '../rest/rest-client'
-import { authenticated } from "../session/SessionUtil";
+import { authenticated, getUser } from "../session/SessionUtil";
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) => ({
     paper: {
       width: '90%',
       margin: 'auto',
-      marginTop: 100,
+      marginTop: 40,
     },
     table: {
       minWidth: 750,
@@ -88,11 +88,11 @@ export const InitiativeList = ({ history }) =>   {
     const classes = useStyles();
     const { alert } = useContext(SessionContext);
     const [state, setState] = useState({initiatives: []});
-    const [order, setOrder] = useState('asc');
-    const [orderBy, setOrderBy] = useState('calories');
-    const [selected, setSelected] = useState({}); // para mi esto debería ser {}
+    const [selected, setSelected] = useState({});
+    const [emptyList, setEmptyList] = useState(false)
     const [displayImagePopup, setDisplayImagePopup] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [user, setUser] = useState(''); 
 
     // ---- START / PIDO INICIATIVAS AL BACKEND ----
     useEffect(() => {
@@ -100,8 +100,11 @@ export const InitiativeList = ({ history }) =>   {
             history.push("/login");
         }
 
+        setUser(getUser());
+
         async function fetchData() {
             restClient.getAllPending(null, initiativeList => {
+                setEmptyList(initiativeList.length == 0)
                 initiativeList.forEach(addInitiative)
                 setLoading(false)
             })
@@ -140,12 +143,6 @@ export const InitiativeList = ({ history }) =>   {
     const handleInitiativeSelected = (initiative) => {
         setSelected(prev => initiative)
         openImagePopup();
-    };
-
-    const handleRequestSort = (event, property) => {
-        const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
     };
 
     function openImagePopup() {
@@ -200,32 +197,6 @@ export const InitiativeList = ({ history }) =>   {
       setState({initiatives});
     }
 
-    function descendingComparator(a, b, orderBy) {
-        if (b[orderBy] < a[orderBy]) {
-          return -1;
-        }
-        if (b[orderBy] > a[orderBy]) {
-          return 1;
-        }
-        return 0;
-      }
-      
-    function getComparator(order, orderBy) {
-        return order === 'desc'
-            ? (a, b) => descendingComparator(a, b, orderBy)
-            : (a, b) => -descendingComparator(a, b, orderBy);
-    }
-      
-    function stableSort(array, comparator) {
-        const stabilizedThis = array.map((el, index) => [el, index]);
-        stabilizedThis.sort((a, b) => {
-          const order = comparator(a[0], b[0]);
-          if (order !== 0) return order;
-          return a[1] - b[1];
-        });
-        return stabilizedThis.map((el) => el[0]);
-    }
-
     function formatDate(d) {
       const date = new Date(d)
       let formattedDate = ''
@@ -252,7 +223,7 @@ export const InitiativeList = ({ history }) =>   {
 
     return (
         <div className={classes.root}>
-          <NavBar history={history}/>
+          <NavBar history={history} user={user}/>
           <Paper className={classes.paper}>
             <TableContainer>
               <Table
@@ -262,12 +233,9 @@ export const InitiativeList = ({ history }) =>   {
                 size="small"
               >
                 <EnhancedTableHead
-                  order={order}
-                  orderBy={orderBy}
-                  onRequestSort={handleRequestSort}
                 />
                 <TableBody>
-                  {stableSort(state.initiatives, getComparator(order, orderBy))
+                  {state.initiatives
                     .map((initiative, index) => {
                       const enabled = initiative.enabled
 
@@ -329,11 +297,15 @@ export const InitiativeList = ({ history }) =>   {
                     })}
                 </TableBody>
               </Table>
+              {emptyList && 
+                <div className={classes.fab}>
+                  <p>No hay iniciativas pendientes de aprobación</p>
+                </div>}
             </TableContainer>
             </Paper>
-            {loading &&  <div className={classes.fab}><CircularProgress></CircularProgress> </div>}
+            {loading &&  <div className={classes.fab} style={{marginTop: 20}}><CircularProgress></CircularProgress> </div>}
             {!loading && <div className={classes.fab}>
-              <Tooltip title = "Cargar más Iniciativas" placement="right-start">
+              <Tooltip title = "Cargar más Iniciativas" placement="right-start" style={{marginTop:5}}>
                 <Fab
                   color ="secondary" 
                   size = "large" 

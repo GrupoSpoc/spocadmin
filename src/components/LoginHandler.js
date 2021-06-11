@@ -11,20 +11,18 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useState, useContext } from 'react';
 import restClient from '../rest/rest-client.js'
-import { setJWT } from '../session/SessionUtil.js'
+import { setJWT, setUser } from '../session/SessionUtil.js'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { SessionContext } from './context';
+import powered from '../assets/powered.png'
 
 
 function Copyright() {
+  const classes = useStyles()
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {'Copyright © '}
-      <Link color="inherit" href="http://material-ui.com/">
-        CollaborAR Admin
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
+      {'CollaborAR Admin '}
+      <img src={powered} alt="" style={{ width: '80%', marginTop:10}}/>
     </Typography>
   );
 }
@@ -52,8 +50,8 @@ const useStyles = makeStyles((theme) => ({
 export const LoginHandler = ({ history }) =>  {
   const classes = useStyles();
   const { alert } = useContext(SessionContext);
-  const[uid, setUid] = useState();
-  const[password, setPassword] = useState();
+  const [uid, setUid] = useState();
+  const [password, setPassword] = useState();
   const [loading, setLoading] = useState(false);
 
 
@@ -68,8 +66,9 @@ export const LoginHandler = ({ history }) =>  {
 
   const handleSubmit = () => {
      setLoading(true);
-     restClient.signIn(uid, password, jwt => {
-        setJWT(jwt)
+     restClient.signIn(uid, password, tokenInfo => {
+        setJWT(tokenInfo.jwt)
+        setUser(tokenInfo.user.nickname)
         setLoading(false);
         history.push("/")
      },
@@ -78,6 +77,15 @@ export const LoginHandler = ({ history }) =>  {
        alert(2, 'Usuario o contraseña incorrectos')
      })
   }
+
+  const handleSubmitKeypress = e => {
+    if (password !== "" && uid !== "") {
+      if (e.charCode === 13) {
+        handleSubmit()
+      }
+    }
+  }
+
 
   return (
     <Container component="main" maxWidth="xs">
@@ -100,6 +108,7 @@ export const LoginHandler = ({ history }) =>  {
             autoComplete="User"
             autoFocus
             onChange={handleUidChanged}
+            onKeyPress={handleSubmitKeypress}
           />
           <TextField
             variant="outlined"
@@ -112,8 +121,9 @@ export const LoginHandler = ({ history }) =>  {
             id="password"
             autoComplete="current-password"
             onChange={handlePasswordChanged}
+            onKeyPress={handleSubmitKeypress}
           />
-          {loading && <div className={classes.fab}><CircularProgress></CircularProgress> </div>}
+          {loading && <div className={classes.fab} style={{marginTop: 20}}><CircularProgress></CircularProgress> </div>}
           {!loading && <Button
             type="submit"
             fullWidth
