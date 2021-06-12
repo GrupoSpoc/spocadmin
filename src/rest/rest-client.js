@@ -1,6 +1,7 @@
 import { BASE } from './paths.js'
 import axios from 'axios'
 import { getJWT } from '../session/SessionUtil'
+import fetch from 'node-fetch'
 
 const options = () => { 
     return { 
@@ -32,13 +33,13 @@ const signIn = async (uid, password, callback, errCallback) => {
     });
 }
 
-const getAllPending = (dateTop, callback) => {
+const getAllPending = (dateTop, callback, errCallback) => {
     const opt = authOptions()
 
     const params = {
         order: 1,
         statusId: 1,
-        limit: 4,
+        limit: 2,
         dateTop
     }
 
@@ -47,7 +48,7 @@ const getAllPending = (dateTop, callback) => {
     axios.get(BASE + '/initiative/all', opt)
 
     .then(res => callback(res.data))
-    .catch(err => console.log(err));
+    .catch(err => errCallback(err));
 }
 
 const approve = (initiativeId, callback, errCallback) => {

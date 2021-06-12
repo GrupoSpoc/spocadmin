@@ -2,12 +2,12 @@ import * as Cookies from "js-cookie";
 
 export const setJWT = jwt => {
   clearJWT();
-  Cookies.set("jwt", jwt, { expires: 14 });
+  Cookies.set("jwt", jwt, { expires: 180 });
 };
 
 export const setUser = user => {
   clearUser();
-  Cookies.set("user", user, { expires: 14 });
+  Cookies.set("user", user, { expires: 180 });
 };
 
 

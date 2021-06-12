@@ -21,11 +21,8 @@ export const NavBar = ({ history, user }) => {
             style={{width: "90%", margin: 'auto'}}
             
         >
-            <Grid item xs={2} justify="left">
-                <img src={fiwareLogo} alt="" style={{ width: '60%' }}/>
-            </Grid>
-            <Grid item xs={3} justify="center">
-                <img src={fiwareTitle} alt="" style={{ width: '90%' }}/>
+            <Grid item xs={3} justify="left">
+                <img src={fiwareTitle} alt="" style={{ width: '80%' }}/>
             </Grid>
             <Grid item xs={2} justify="right">
                 <Tooltip title = "Logout" placement="right-start">

@@ -93,23 +93,25 @@ export const InitiativeList = ({ history }) =>   {
     const [displayImagePopup, setDisplayImagePopup] = useState(false)
     const [loading, setLoading] = useState(true)
     const [user, setUser] = useState(''); 
+    const [lastBatch, setLastBatch] = useState(false)
 
     // ---- START / PIDO INICIATIVAS AL BACKEND ----
     useEffect(() => {
         if (!authenticated()) {
             history.push("/login");
-        }
+        } else {
+          setUser(getUser());
 
-        setUser(getUser());
-
-        async function fetchData() {
-            restClient.getAllPending(null, initiativeList => {
-                setEmptyList(initiativeList.length == 0)
-                initiativeList.forEach(addInitiative)
-                setLoading(false)
-            })
+          async function fetchData() {
+              restClient.getAllPending(null, initiativeBatch => {
+                  setEmptyList(initiativeBatch.initiatives.length == 0)
+                  initiativeBatch.initiatives.forEach(addInitiative)
+                  setLastBatch(initiativeBatch.last_batch)
+                  setLoading(false)
+              }, err => handleError("Error", err))
+          }
+          fetchData();
         }
-        fetchData();
     }, []);
 
     function buildConfirmBody (message) {
@@ -134,8 +136,10 @@ export const InitiativeList = ({ history }) =>   {
       }
 
       setLoading(true)
-      restClient.getAllPending(dateTop, initiativeList => {
-        initiativeList.forEach(addInitiative)
+      restClient.getAllPending(dateTop, initiativeBatch => {
+        initiativeBatch.initiatives.forEach(addInitiative)
+        setLastBatch(initiativeBatch.last_batch)
+        setEmptyList(state.initiatives.length == 0)
         setLoading(false)
       })
     }
@@ -160,11 +164,7 @@ export const InitiativeList = ({ history }) =>   {
           changeStatusAndDisable(index, 2)
           alert(3, `Iniciativa ${initiative._id} aprobada`)
           setLoading(false)
-        },
-        err => {
-          alert(2, "Error aprobando iniciativa: " + err)
-          setLoading(false);
-        })
+        }, err => handleError("Error aprobando iniciativa", err))
       })
     }
 
@@ -175,12 +175,18 @@ export const InitiativeList = ({ history }) =>   {
           changeStatusAndDisable(index, 3)
           alert(3, `Iniciativa ${initiative._id} rechazada`)
           setLoading(false)
-        },
-        err => {
-          alert(2, "Error rechazando iniciativa: " + err)
-          setLoading(false);
-        })
+        }, err => handleError("Error rechazando iniciativa", err))
       })
+    }
+
+    function handleError(message, err) {
+      setLoading(false);
+      if (err.response) {
+        alert(2, message + ": " + err.response.data)
+      } else {
+        alert(1, "La sesión ha caducado. Inicie sesión nuevamente")
+        history.push("/logout")
+      }
     }
 
     function changeStatusAndDisable(index, status_id) {
@@ -305,11 +311,12 @@ export const InitiativeList = ({ history }) =>   {
             </Paper>
             {loading &&  <div className={classes.fab} style={{marginTop: 20}}><CircularProgress></CircularProgress> </div>}
             {!loading && <div className={classes.fab}>
-              <Tooltip title = "Cargar más Iniciativas" placement="right-start" style={{marginTop:5}}>
+              <Tooltip title = "Cargar más Iniciativas" placement="right-start" style={{marginTop:5}} >
                 <Fab
                   color ="secondary" 
                   size = "large" 
                   onClick={fetchMoreInitiatives}
+                  disabled={lastBatch}
                 >
                   <AddIcon/>
                 </Fab>
