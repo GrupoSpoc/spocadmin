@@ -39,7 +39,7 @@ const getAllPending = (dateTop, callback, errCallback) => {
     const params = {
         order: 1,
         statusId: 1,
-        limit: 2,
+        limit: 3,
         dateTop
     }
 
