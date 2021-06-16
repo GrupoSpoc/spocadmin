@@ -40,7 +40,7 @@ const getAllPending = (dateFrom, callback, errCallback) => {
         order: 2,
         statusId: 1,
         limit: 3,
-        datefrom
+        dateFrom
     }
 
     opt.params = params;
