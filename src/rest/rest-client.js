@@ -33,7 +33,7 @@ const signIn = async (uid, password, callback, errCallback) => {
     });
 }
 
-const getAllPending = (dateTop, callback, errCallback) => {
+const getAllPending = (dateFrom, callback, errCallback) => {
     const opt = authOptions()
 
     const params = {

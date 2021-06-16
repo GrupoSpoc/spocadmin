@@ -22,6 +22,13 @@ import RejectIcon from '@material-ui/icons/Clear'
 import CameraIcon from '@material-ui/icons/CameraAlt'
 import { useConfirm } from 'material-ui-confirm';
 import { SessionContext } from './context';
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -82,6 +89,7 @@ statusMap.set(1, 'Pendiente')
 statusMap.set(2, 'Aprobada')
 statusMap.set(3, 'Rechazada')
 
+const invalidFiwareCharacters = ['<', '>', '"', "'", '=', ';', '(', ')']
 
 export const InitiativeList = ({ history }) =>   {
     const confirm = useConfirm()
@@ -91,6 +99,8 @@ export const InitiativeList = ({ history }) =>   {
     const [selected, setSelected] = useState({});
     const [emptyList, setEmptyList] = useState(false)
     const [displayImagePopup, setDisplayImagePopup] = useState(false)
+    const [displayRejectDialog, setDisplayRejectDialog] = useState(false)
+    const [rejectMotive, setRejectMotive] = useState('')
     const [loading, setLoading] = useState(true)
     const [user, setUser] = useState(''); 
     const [lastBatch, setLastBatch] = useState(false)
@@ -157,6 +167,22 @@ export const InitiativeList = ({ history }) =>   {
         setDisplayImagePopup(false)
     };
 
+    function openRejectDialog() {
+      setDisplayRejectDialog(true)
+    };
+
+    function closeRejectDialog() {
+      setDisplayRejectDialog(false)
+    };
+
+    const handleRejectMotiveChange = e => {
+      const value = e.target.value
+      if (value.length <= 130) {
+        setRejectMotive(prev => value)
+      }
+    }
+  
+
     function handleApprove(initiative, index) {
       confirm(buildConfirmBody("¿Seguro desea aprobar esta Iniciativa?")).then(() => {
         setLoading(true)
@@ -168,15 +194,29 @@ export const InitiativeList = ({ history }) =>   {
       })
     }
 
-    function handleReject(initiative, index) {
-      confirm(buildConfirmBody("¿Seguro desea rechazar esta Iniciativa?")).then(() => {
+    function handleReject(selected) {
+      if (motiveIsValid()) {
         setLoading(true)
+
+        const {initiative} = selected;
+        const {index} = selected;
+      
         restClient.reject(initiative._id, res => {
           changeStatusAndDisable(index, 3)
           alert(3, `Iniciativa ${initiative._id} rechazada`)
           setLoading(false)
         }, err => handleError("Error rechazando iniciativa", err))
-      })
+      }
+    }
+
+    const motiveIsValid = () => {
+      const invalidCharacter = invalidFiwareCharacters.filter(ch => rejectMotive.includes(ch))[0]
+      if (invalidCharacter) {
+        alert(2, `El caracter ${invalidCharacter} es inválido`)
+        return false;
+      }
+
+      return true;
     }
 
     function handleError(message, err) {
@@ -292,7 +332,10 @@ export const InitiativeList = ({ history }) =>   {
                             <Tooltip title = "Rechazar" placement="right-start">
                               <IconButton 
                                   size="large"
-                                  onClick={() => handleReject(initiative, index)}
+                                  onClick={() => {
+                                    setSelected({initiative: initiative, index: index })
+                                    openRejectDialog()}
+                                  }
                                   disabled={!enabled}> 
                                   <RejectIcon color={enabled ? "secondary" : colorDisabled}/>
                               </IconButton>
@@ -303,6 +346,36 @@ export const InitiativeList = ({ history }) =>   {
                     })}
                 </TableBody>
               </Table>
+              <Dialog open={displayRejectDialog} onClose={closeRejectDialog} aria-labelledby="form-dialog-title" maxWidth = 'sm' fullWidth>
+                <DialogTitle id="form-dialog-title">Rechazar Iniciativa</DialogTitle>
+                <DialogContent>
+                  <DialogContentText>
+                    Ingrese el motivo de rechazo.
+                  </DialogContentText>
+                  <TextField
+                    value={rejectMotive}
+                    autoFocus
+                    margin="dense"
+                    id="motive"
+                    onChange={handleRejectMotiveChange}
+                    fullWidth
+                  />
+                </DialogContent>
+                <DialogActions>
+                  <Button onClick={closeRejectDialog} color="primary">
+                    Cancelar
+                  </Button>
+                  <Button onClick={() => {
+                    handleReject(selected)
+                    closeRejectDialog()
+                  }} 
+                  color="primary"
+                  disabled={rejectMotive.length <= 0}
+                  >
+                    Aceptar
+                  </Button>
+                </DialogActions>
+              </Dialog>
               {emptyList && 
                 <div className={classes.fab}>
                   <p>No hay iniciativas pendientes de aprobación</p>
