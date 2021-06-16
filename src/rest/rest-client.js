@@ -60,10 +60,17 @@ const approve = (initiativeId, callback, errCallback) => {
     .catch(err => errCallback(err));
 }
 
-const reject = (initiativeId, callback, errCallback) => {
+const reject = (initiativeId, rejectMotive, callback, errCallback) => {
     const opt = authOptions()
 
-    axios.post(BASE + '/initiative/reject/' + initiativeId, null, opt)
+    opt.headers['Content-Type'] = 'application/json'
+
+    const data = JSON.stringify({
+        id: initiativeId,
+        reject_motive: rejectMotive
+    })
+
+    axios.post(BASE + '/initiative/reject',  data, opt)
 
     .then(res => callback(res.data))
     .catch(err => errCallback(err));

@@ -201,7 +201,7 @@ export const InitiativeList = ({ history }) =>   {
         const {initiative} = selected;
         const {index} = selected;
       
-        restClient.reject(initiative._id, res => {
+        restClient.reject(initiative._id, rejectMotive, res => {
           changeStatusAndDisable(index, 3)
           alert(3, `Iniciativa ${initiative._id} rechazada`)
           setLoading(false)
@@ -211,6 +211,7 @@ export const InitiativeList = ({ history }) =>   {
 
     const motiveIsValid = () => {
       const invalidCharacter = invalidFiwareCharacters.filter(ch => rejectMotive.includes(ch))[0]
+      
       if (invalidCharacter) {
         alert(2, `El caracter ${invalidCharacter} es inválido`)
         return false;
