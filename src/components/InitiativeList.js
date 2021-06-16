@@ -128,15 +128,15 @@ export const InitiativeList = ({ history }) =>   {
     }
 
     function fetchMoreInitiatives() {
-      let dateTop;
+      let dateFrom;
 
       if (state.initiatives.length > 0) {
           const lastInitiative = state.initiatives[state.initiatives.length - 1]
-          dateTop = lastInitiative.date
+          dateFrom = lastInitiative.date
       }
 
       setLoading(true)
-      restClient.getAllPending(dateTop, initiativeBatch => {
+      restClient.getAllPending(dateFrom, initiativeBatch => {
         initiativeBatch.initiatives.forEach(addInitiative)
         setLastBatch(initiativeBatch.last_batch)
         setEmptyList(state.initiatives.length == 0)
