@@ -1,7 +1,6 @@
 import { BASE } from './paths.js'
 import axios from 'axios'
 import { getJWT } from '../session/SessionUtil'
-import fetch from 'node-fetch'
 
 const options = () => { 
     return { 
@@ -33,14 +32,15 @@ const signIn = async (uid, password, callback, errCallback) => {
     });
 }
 
-const getAllPending = (dateTop, callback, errCallback) => {
+const getAllPending = (dateFrom, dateTo, callback, errCallback) => {
     const opt = authOptions()
 
     const params = {
-        order: 1,
+        order: 2,
         statusId: 1,
         limit: 3,
-        dateTop
+        dateFrom,
+        dateTo
     }
 
     opt.params = params;

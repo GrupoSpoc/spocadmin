@@ -1,7 +1,6 @@
 import Grid from '@material-ui/core/Grid';
 import { IconButton } from '@material-ui/core';
 import PowerSettingsNewIcon from '@material-ui/icons/PowerSettingsNew';
-import fiwareLogo from '../assets/fiware-logo.png'
 import fiwareTitle from '../assets/fiware-title.png'
 
 

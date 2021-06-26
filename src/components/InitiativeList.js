@@ -15,6 +15,8 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { IconButton } from '@material-ui/core';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+import SearchIcon from '@material-ui/icons/Search';
+import Toolbar from '@material-ui/core/Toolbar';
 import Tooltip from '@material-ui/core/Tooltip'
 import { NavBar } from './NavBar';
 import ApproveIcon from '@material-ui/icons/Check'
@@ -104,6 +106,8 @@ export const InitiativeList = ({ history }) =>   {
     const [loading, setLoading] = useState(true)
     const [user, setUser] = useState(''); 
     const [lastBatch, setLastBatch] = useState(false)
+    const [dateFrom, setDateFrom] = useState(null);
+    const [dateTo, setDateTo] = useState(null);
 
     // ---- START / PIDO INICIATIVAS AL BACKEND ----
     useEffect(() => {
@@ -111,18 +115,21 @@ export const InitiativeList = ({ history }) =>   {
             history.push("/login");
         } else {
           setUser(getUser());
-
-          async function fetchData() {
-              restClient.getAllPending(null, initiativeBatch => {
-                  setEmptyList(initiativeBatch.initiatives.length == 0)
-                  initiativeBatch.initiatives.forEach(addInitiative)
-                  setLastBatch(initiativeBatch.last_batch)
-                  setLoading(false)
-              }, err => handleError("Error", err))
-          }
-          fetchData();
+          search();
         }
     }, []);
+
+    function search() {
+      setLoading(true)
+      setState({initiatives: []})
+
+      restClient.getAllPending(dateFrom, dateTo, initiativeBatch => {
+        setEmptyList(initiativeBatch.initiatives.length == 0)
+        initiativeBatch.initiatives.forEach(addInitiative)
+        setLastBatch(initiativeBatch.last_batch)
+        setLoading(false)
+      }, err => handleError("Error", err))
+    }
 
     function buildConfirmBody (message) {
       return {title: 'Confirmación', description: message, cancellationText: 'Cancelar'}
@@ -138,15 +145,15 @@ export const InitiativeList = ({ history }) =>   {
     }
 
     function fetchMoreInitiatives() {
-      let dateTop;
+      let lastInitiativeDate;
 
       if (state.initiatives.length > 0) {
           const lastInitiative = state.initiatives[state.initiatives.length - 1]
-          dateTop = lastInitiative.date
+          lastInitiativeDate = lastInitiative.date
       }
 
       setLoading(true)
-      restClient.getAllPending(dateTop, initiativeBatch => {
+      restClient.getAllPending(lastInitiativeDate, dateTo, initiativeBatch => {
         initiativeBatch.initiatives.forEach(addInitiative)
         setLastBatch(initiativeBatch.last_batch)
         setEmptyList(state.initiatives.length == 0)
@@ -266,12 +273,57 @@ export const InitiativeList = ({ history }) =>   {
       return formattedDate
   }
 
+  const handleDateFromChanged = e => {
+    setDateFrom(e.target.value);
+  };
+
+  const handleDateToChanged = e => {
+    setDateTo(e.target.value);
+  };
+
 
 
     return (
         <div className={classes.root}>
           <NavBar history={history} user={user}/>
           <Paper className={classes.paper}>
+          <Toolbar variant="dense" style={{padding:5, marginBottom: 30}}>
+            <TextField
+              id="dateFrom"
+              label="Desde"
+              type="datetime-local"
+              defaultValue={dateFrom}
+              onChange={handleDateFromChanged}
+              className={classes.textField}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              style={{padding:10}}
+            />
+
+            <TextField
+              id="dateTo"
+              label="Hasta"
+              type="datetime-local"
+              defaultValue={dateTo}
+              onChange={handleDateToChanged}
+              className={classes.textField}
+              InputLabelProps={{
+                shrink: true,
+              }}
+              style={{padding:10}}
+            />
+            <Tooltip title = "Buscar" placement="right-start" style={{marginTop:5}} >
+                <Fab
+                  color ="primary" 
+                  size = "medium" 
+                  onClick={search}
+                >
+                  <SearchIcon variant = "outlined"/>
+                </Fab>
+            </Tooltip>
+          </Toolbar>
+
             <TableContainer>
               <Table
                 className={classes.table}

@@ -2,8 +2,6 @@ import React from 'react';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import { withStyles, makeStyles } from '@material-ui/core/styles';
 
 const headCells = [
     { id: 'id', numeric: false, disablePadding: true, label: 'id' },
